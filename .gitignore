@@ -1,0 +1,35 @@
+# Dependencies
+**/node_modules
+
+# Build outputs
+**/.next
+**/out
+**/dist
+**/.turbo
+*.tsbuildinfo
+
+# Environment
+.env
+.env*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Binary/temp/debug files
+*.pem
+*.docx
+*.txt
+!README.md
+
+# Duplicate lockfiles (root is source of truth)
+apps/**/pnpm-lock.yaml
+
+# Python scripts (not part of project)
+*.py
