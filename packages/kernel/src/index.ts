@@ -13,3 +13,6 @@ export type {
   Permission,
   AppCategory,
 } from './types';
+
+// Window & process state management
+export * from './store';
