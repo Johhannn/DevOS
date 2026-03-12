@@ -1,18 +1,24 @@
 "use client";
 
 import { useEffect, useState, createContext, useContext } from 'react';
-import { kernel, CoreKernel } from '@devos/kernel';
-import { VirtualFileSystem } from '@devos/filesystem';
+import { kernel, registry } from '@devos/kernel';
+import type { EventBus, ServiceRegistry } from '@devos/kernel';
 
-// Create a context so UI components can consume the kernel
-export const KernelContext = createContext<CoreKernel | null>(null);
+// ─── Kernel Context ─────────────────────────────────────────────────────────
+interface KernelContextValue {
+  events: EventBus;
+  services: ServiceRegistry;
+}
 
-export function useKernel() {
+export const KernelContext = createContext<KernelContextValue | null>(null);
+
+export function useKernel(): KernelContextValue {
   const context = useContext(KernelContext);
-  if (!context) throw new Error("KernelContext provider is missing");
+  if (!context) throw new Error("useKernel must be used within <DevOSProvider>");
   return context;
 }
 
+// ─── Provider ───────────────────────────────────────────────────────────────
 export function DevOSProvider({ children }: { children: React.ReactNode }) {
   const [booted, setBooted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,25 +27,23 @@ export function DevOSProvider({ children }: { children: React.ReactNode }) {
     async function bootSystem() {
       try {
         console.log("Booting DevOS...");
-        
-        // Register Core Services
-        const vfs = new VirtualFileSystem(kernel.events);
-        await kernel.services.register(vfs);
-        
-        // Boot kernel
-        await kernel.boot();
+
+        // Emit system boot event
+        await kernel.emit('system.boot', {});
         setBooted(true);
-      } catch (err: any) {
+        console.log("DevOS ready.");
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Unknown error during boot";
         console.error("Kernel Panic:", err);
-        setError(err.message || "Unknown error during boot");
+        setError(message);
       }
     }
     
     bootSystem();
 
     return () => {
-      kernel.shutdown();
-    }
+      kernel.emit('system.shutdown', {});
+    };
   }, []);
 
   if (error) {
@@ -56,17 +60,17 @@ export function DevOSProvider({ children }: { children: React.ReactNode }) {
 
   if (!booted) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-[#0B0F19] text-white/70 font-mono">
+      <div className="flex h-screen w-screen items-center justify-center bg-desktop text-white/70 font-mono">
         Loading DevOS Kernel...
       </div>
     );
   }
 
   return (
-    <KernelContext.Provider value={kernel}>
-      <div className="devos-root h-screen w-screen overflow-hidden bg-[#0B0F19] text-[#D1D5DB] font-sans selection:bg-[#6366F1]/30">
+    <KernelContext.Provider value={{ events: kernel, services: registry }}>
+      <div className="devos-root h-screen w-screen overflow-hidden bg-desktop text-text font-sans selection:bg-accent/30">
         {children}
       </div>
     </KernelContext.Provider>
-  )
+  );
 }

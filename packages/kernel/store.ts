@@ -40,7 +40,7 @@ export interface SystemState {
 }
 
 // Global Vanilla Zustand Store (can be used outside React)
-export const systemStore = createStore<SystemState>((set, get) => ({
+export const systemStore = createStore<SystemState>((set) => ({
   processes: {},
   windows: {},
   highestZIndex: 10,
