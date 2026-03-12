@@ -1,11 +1,11 @@
 "use client";
 
-import { useSystemStore } from '@devos/kernel';
+import { useWindowStore } from '../stores/windowStore';
 import { Window } from './window';
 import { AnimatePresence } from 'framer-motion';
 
 export function WindowManager() {
-  const windows = useSystemStore(state => Object.values(state.windows));
+  const windows = useWindowStore(state => Object.values(state.windows));
 
   return (
     <div className="absolute inset-0 pointer-events-none z-10">

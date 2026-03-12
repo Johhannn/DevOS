@@ -1,65 +1,60 @@
 "use client";
 
-import { useSystemStore } from '@devos/kernel';
+import { useWindowStore } from '../stores/windowStore';
 import { Rnd } from 'react-rnd';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, Minus, Square } from 'lucide-react';
 
 export function Window({ id }: { id: string }) {
-  const windowState = useSystemStore(state => state.windows[id]);
-  const focusWindow = useSystemStore(state => state.focusWindow);
-  const closeWindow = useSystemStore(state => state.closeWindow);
-  const updateWindow = useSystemStore(state => state.updateWindow);
-  const toggleMinimize = useSystemStore(state => state.toggleMinimize);
-  const toggleMaximize = useSystemStore(state => state.toggleMaximize);
+  const windowState = useWindowStore(state => state.windows[id]);
+  const focusWindow = useWindowStore(state => state.focusWindow);
+  const closeWindow = useWindowStore(state => state.closeWindow);
+  const minimiseWindow = useWindowStore(state => state.minimiseWindow);
+  const maximiseWindow = useWindowStore(state => state.maximiseWindow);
+  const updateWindowPosition = useWindowStore(state => state.updateWindowPosition);
+  const updateWindowSize = useWindowStore(state => state.updateWindowSize);
 
   if (!windowState) return null;
+  if (windowState.minimised) return null;
 
-  // Don't render the rnd component if maximized (we'll just use a full div)
-  // or minimized (we keep it hidden but alive in the DOM for state preservation)
-  if (windowState.minimized) return null;
-
-  const handleDragStop = (e: any, d: any) => {
-    updateWindow(id, { position: { x: d.x, y: d.y } });
+  const handleDragStop = (_e: unknown, d: { x: number; y: number }) => {
+    updateWindowPosition(id, d.x, d.y);
   };
 
-  const handleResizeStop = (e: any, direction: any, ref: any, delta: any, position: any) => {
-    updateWindow(id, {
-      size: { width: parseInt(ref.style.width), height: parseInt(ref.style.height) },
-      position
-    });
+  const handleResizeStop = (_e: unknown, _dir: unknown, ref: HTMLElement, _delta: unknown, position: { x: number; y: number }) => {
+    updateWindowSize(id, parseInt(ref.style.width), parseInt(ref.style.height));
+    updateWindowPosition(id, position.x, position.y);
   };
 
   const windowContent = (
     <div 
-      className={`flex flex-col w-full h-full bg-[#111827] border border-white/10 rounded-lg shadow-2xl overflow-hidden ${windowState.focused ? 'ring-1 ring-[#6366F1]/50' : ''}`}
+      className={`flex flex-col w-full h-full bg-panel border border-white/10 rounded-lg shadow-2xl overflow-hidden ${windowState.focused ? 'ring-1 ring-accent/50' : ''}`}
       onMouseDown={() => focusWindow(id)}
     >
       {/* Title Bar */}
       <div 
-        className="h-9 min-h-[36px] bg-[#1F2937] border-b border-white/5 flex items-center justify-between px-3 select-none drag-handle cursor-move"
-        onDoubleClick={() => toggleMaximize(id)}
+        className="h-9 min-h-[36px] bg-window border-b border-white/5 flex items-center justify-between px-3 select-none drag-handle cursor-move"
+        onDoubleClick={() => maximiseWindow(id)}
       >
         <div className="flex items-center gap-2">
            <div className="text-xs font-semibold text-white/80">{windowState.title}</div>
         </div>
 
         <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
-          <button onClick={(e) => { e.stopPropagation(); toggleMinimize(id); }} className="w-5 h-5 flex items-center justify-center hover:bg-white/10 rounded">
+          <button onClick={(e) => { e.stopPropagation(); minimiseWindow(id); }} className="w-5 h-5 flex items-center justify-center hover:bg-white/10 rounded">
             <Minus size={14} />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); toggleMaximize(id); }} className="w-5 h-5 flex items-center justify-center hover:bg-white/10 rounded">
+          <button onClick={(e) => { e.stopPropagation(); maximiseWindow(id); }} className="w-5 h-5 flex items-center justify-center hover:bg-white/10 rounded">
             <Square size={12} />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); closeWindow(id); }} className="w-5 h-5 flex items-center justify-center hover:bg-red-500 hover:text-white rounded">
+          <button onClick={(e) => { e.stopPropagation(); closeWindow(id); }} className="w-5 h-5 flex items-center justify-center hover:bg-danger hover:text-white rounded">
             <X size={14} />
           </button>
         </div>
       </div>
 
       {/* App Content */}
-      <div className="flex-grow relative overflow-hidden bg-[#0B0F19]">
-        {/* Render child app here based on appId */}
+      <div className="flex-grow relative overflow-hidden bg-desktop">
         <div className="p-4 font-mono text-sm text-white/50">
           Mounting {windowState.appId}...
         </div>
@@ -76,23 +71,23 @@ export function Window({ id }: { id: string }) {
       style={{
         position: 'absolute',
         zIndex: windowState.zIndex,
-        ...(windowState.maximized ? { top: 0, left: 0, right: 0, bottom: 48, width: '100%', height: 'calc(100% - 48px)' } : {})
+        ...(windowState.maximised ? { top: 0, left: 0, right: 0, bottom: 48, width: '100%', height: 'calc(100% - 48px)' } : {})
       }}
     >
-      {windowState.maximized ? (
+      {windowState.maximised ? (
          <div className="w-full h-full">{windowContent}</div>
       ) : (
         <Rnd
           default={{
-            x: windowState.position.x,
-            y: windowState.position.y,
-            width: windowState.size.width,
-            height: windowState.size.height,
+            x: windowState.x,
+            y: windowState.y,
+            width: windowState.width,
+            height: windowState.height,
           }}
-          position={windowState.position}
-          size={windowState.size}
-          minWidth={300}
-          minHeight={200}
+          position={{ x: windowState.x, y: windowState.y }}
+          size={{ width: windowState.width, height: windowState.height }}
+          minWidth={windowState.minWidth}
+          minHeight={windowState.minHeight}
           bounds="parent"
           dragHandleClassName="drag-handle"
           onDragStop={handleDragStop}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Terminal, Database, GitBranch, Settings, Cpu } from 'lucide-react';
-import { useSystemStore } from '@devos/kernel';
+import { useWindowStore } from '../stores/windowStore';
 
 export function Taskbar() {
   const [time, setTime] = useState<string>('');
@@ -17,25 +17,25 @@ export function Taskbar() {
     return () => clearInterval(interval);
   }, []);
 
-  const openWindow = useSystemStore(state => state.openWindow);
+  const openWindow = useWindowStore(state => state.openWindow);
 
   const handleOpenTerminal = () => {
     openWindow({
       appId: 'devos.terminal',
       title: 'Terminal - bash',
-      position: { x: window.innerWidth / 2 - 300, y: window.innerHeight / 2 - 200 },
-      size: { width: 600, height: 400 },
-      minimized: false,
-      maximized: false
+      x: Math.round(window.innerWidth / 2 - 300),
+      y: Math.round(window.innerHeight / 2 - 200),
+      width: 600,
+      height: 400,
     });
   };
 
   return (
-    <div className="z-50 w-full h-12 bg-[#111827]/80 backdrop-blur-md border-t border-white/10 flex items-center justify-between px-4 text-sm select-none">
+    <div className="z-50 w-full h-12 bg-panel/80 backdrop-blur-md border-t border-white/10 flex items-center justify-between px-4 text-sm select-none">
       
       {/* Left: App Launcher & Running Apps */}
       <div className="flex items-center gap-2">
-        <button className="h-8 w-8 rounded bg-[#6366F1] flex items-center justify-center text-white hover:bg-[#4F46E5] transition-colors shadow-[0_0_10px_rgba(99,102,241,0.4)]">
+        <button className="h-8 w-8 rounded bg-accent flex items-center justify-center text-white hover:bg-accent/80 transition-colors shadow-[0_0_10px_rgba(99,102,241,0.4)]">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
           </svg>
@@ -43,13 +43,13 @@ export function Taskbar() {
         
         <div className="w-px h-6 bg-white/10 mx-2"></div>
         
-        {/* Placeholder App Icons */}
+        {/* App Icons */}
         <div className="flex items-center gap-1">
-          <button onClick={handleOpenTerminal} className="h-8 w-8 rounded hover:bg-white/10 flex items-center justify-center text-[#D1D5DB] transition-colors relative">
+          <button onClick={handleOpenTerminal} className="h-8 w-8 rounded hover:bg-white/10 flex items-center justify-center text-text transition-colors relative">
             <Terminal size={18} />
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#6366F1]"></div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent"></div>
           </button>
-          <button className="h-8 w-8 rounded hover:bg-white/10 flex items-center justify-center text-[#D1D5DB] transition-colors">
+          <button className="h-8 w-8 rounded hover:bg-white/10 flex items-center justify-center text-text transition-colors">
             <Database size={18} />
           </button>
         </div>
