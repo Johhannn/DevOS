@@ -1,6 +1,16 @@
 // ─── Kernel Types ───────────────────────────────────────────────────────────
 
 /**
+ * Base interface that all kernel services must implement.
+ */
+export interface IService {
+  /** Unique name used to register this service in the ServiceRegistry */
+  readonly name: string;
+  /** Called by the kernel during boot to initialise the service */
+  init(): Promise<void>;
+}
+
+/**
  * Permission types that apps can request from the kernel.
  */
 export type Permission =

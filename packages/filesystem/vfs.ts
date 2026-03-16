@@ -1,5 +1,5 @@
 import { IService, EventBus } from '@devos/kernel';
-import { db, VFSNode, FileNode, DirectoryNode } from './db';
+import { db, VFSNode, FileNode } from './db';
 
 // Extract the name part from a path (e.g. /home/test -> test)
 const basename = (path: string) => path.split('/').pop() || '';

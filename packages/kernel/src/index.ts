@@ -6,6 +6,7 @@ export { ServiceRegistry, registry } from './ServiceRegistry';
 export type { KernelServices } from './ServiceRegistry';
 export type { KernelEventMap, KernelEventName } from './events';
 export type {
+  IService,
   KernelEvent,
   EventHandler,
   Middleware,

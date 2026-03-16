@@ -67,7 +67,8 @@ export const useProcessStore = create<ProcessStoreState & ProcessStoreActions>((
       const proc = state.processes[pid];
       if (!proc) return state;
 
-      const { [pid]: _, ...remaining } = state.processes;
+      const remaining = { ...state.processes };
+      delete remaining[pid];
       return { processes: remaining };
     }),
 

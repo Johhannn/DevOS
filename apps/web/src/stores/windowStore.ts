@@ -113,7 +113,8 @@ export const useWindowStore = create<WindowStoreState & WindowStoreActions>((set
   /** Close and remove a window. */
   closeWindow: (id) =>
     set((state) => {
-      const { [id]: _, ...remaining } = state.windows;
+      const remaining = { ...state.windows };
+      delete remaining[id];
       return { windows: remaining };
     }),
 

@@ -4,6 +4,7 @@
   "main": "index.ts",
   "types": "index.ts",
   "dependencies": {
+    "@devos/kernel": "workspace:*",
     "dexie": "^4.3.0"
   }
 }
