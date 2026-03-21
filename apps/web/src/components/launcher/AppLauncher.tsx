@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, TerminalSquare, Code2, FolderOpen, Zap, GitBranch, Settings2 } from 'lucide-react';
 import { useWindowStore } from '../../stores/windowStore';
 import { useProcessStore } from '../../stores/processStore';
+import { kernel } from '@devos/kernel';
 
-// ─── Types & Data ───────────────────────────────────────────────────────────
+// ─── Data ───────────────────────────────────────────────────────────────────
 
 interface AppItem {
   id: string;
@@ -39,17 +40,21 @@ export function AppLauncher() {
   );
 
   const launchApp = useCallback((app: AppItem) => {
-    // 1. Open a new window and get the window ID
+    // 1. Emit kernel event
+    void kernel.emit('process.start', { appId: app.id });
+    
+    // 2. Open window via store
     const windowId = openWindow({
       appId: app.id,
       title: app.title,
     });
-    
-    // 2. Start a backend process tied to this window
+
+    // 3. Register the process so the Taskbar shows it
     startProcess(app.id, windowId);
     
-    // 3. Close the launcher
+    // 4. Close launcher
     setIsOpen(false);
+    setQuery('');
   }, [openWindow, startProcess]);
 
   // ─── Event Handling ─────────────────────────────────────────────────────────
@@ -60,6 +65,7 @@ export function AppLauncher() {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsOpen((prev) => !prev);
+        return;
       }
 
       if (!isOpen) return;
@@ -85,21 +91,18 @@ export function AppLauncher() {
   }, [isOpen, filteredApps, selectedIndex, launchApp]);
 
   useEffect(() => {
-    const t = setTimeout(() => setSelectedIndex(0), 0);
-    return () => clearTimeout(t);
-  }, [isOpen, query]);
+    setSelectedIndex(0);
+  }, [query, isOpen]);
 
   useEffect(() => {
     if (isOpen) {
+      // Focus input slightly after mount
       const t = setTimeout(() => inputRef.current?.focus(), 50);
-      return () => clearTimeout(t);
-    } else {
-      const t = setTimeout(() => setQuery(''), 0);
       return () => clearTimeout(t);
     }
   }, [isOpen]);
 
-  // Listen for custom event from AppLauncherButton to open
+  // Listen for custom event from Taskbar Launcher Button
   useEffect(() => {
     const handleOpenEvent = () => setIsOpen(true);
     window.addEventListener('devos:open-launcher', handleOpenEvent);
@@ -111,94 +114,90 @@ export function AppLauncher() {
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            className="absolute inset-0 bg-dark/60 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-[101] flex items-start justify-center pt-[15vh] pointer-events-none">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98, y: -10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: -10 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="w-full max-w-xl bg-panel rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-border overflow-hidden pointer-events-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Search Input */}
-              <div className="flex items-center px-4 py-4 border-b border-border gap-3">
-                <Search className="w-5 h-5 text-muted shrink-0" />
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search apps, files, commands..."
-                  className="flex-1 bg-transparent border-none outline-none text-foreground text-lg placeholder:text-muted/60"
-                  spellCheck={false}
-                />
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-muted font-mono bg-surface px-1.5 py-0.5 rounded border border-border">esc</span>
-                  <span className="text-xs text-muted font-mono bg-surface px-1.5 py-0.5 rounded border border-border">to close</span>
-                </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative z-10 w-full max-w-lg bg-panel rounded-2xl shadow-elevated border border-border overflow-hidden"
+          >
+            {/* Search Input */}
+            <div className="flex items-center px-4 py-4 border-b border-border gap-3">
+              <Search className="w-5 h-5 text-muted shrink-0" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search apps, files, commands..."
+                className="flex-1 bg-transparent border-none outline-none text-foreground text-lg placeholder:text-muted/60"
+                spellCheck={false}
+              />
+              <div className="flex items-center gap-1 shrink-0">
+                <span className="text-[10px] text-muted font-mono bg-surface px-1.5 py-0.5 rounded border border-border uppercase">esc</span>
               </div>
+            </div>
 
-              {/* Results */}
-              <div className="max-h-[60vh] overflow-y-auto p-2">
-                {filteredApps.length > 0 ? (
-                  <div className="mb-2">
-                    <div className="px-3 py-2 text-xs font-semibold text-muted uppercase tracking-wider">
-                      Applications
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      {filteredApps.map((app, index) => {
-                        const isSelected = index === selectedIndex;
-                        const Icon = app.icon;
-                        
-                        return (
-                          <button
-                            key={app.id}
-                            className={`
-                              flex items-center gap-4 px-3 py-3 rounded-xl transition-colors text-left
-                              ${isSelected ? 'bg-accent/20 border border-accent/30' : 'hover:bg-surface/50 border border-transparent'}
-                            `}
-                            onClick={() => launchApp(app)}
-                            onMouseEnter={() => setSelectedIndex(index)}
-                          >
-                            <div className={`p-2 rounded-lg ${isSelected ? 'bg-accent/20 text-accent' : 'bg-surface text-foreground'}`}>
-                              <Icon className="w-5 h-5" />
-                            </div>
-                            <div className="flex-1 flex flex-col">
-                              <span className="font-medium text-foreground">{app.title}</span>
-                              <span className="text-sm text-muted">{app.description}</span>
-                            </div>
-                            {isSelected && (
-                              <span className="text-xs text-muted font-mono bg-surface px-1.5 py-0.5 rounded border border-border shrink-0 ml-4">
-                                ↵
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
+            {/* Results List */}
+            <div className="max-h-[60vh] overflow-y-auto p-2">
+              {filteredApps.length > 0 ? (
+                <div className="mb-2">
+                  <div className="px-3 py-2 text-xs font-semibold text-muted uppercase tracking-wider">
+                    Applications
                   </div>
-                ) : (
-                  <div className="py-12 flex flex-col items-center justify-center text-muted gap-3">
-                    <Search className="w-8 h-8 opacity-20" />
-                    <p>No results found for &quot;{query}&quot;</p>
+                  <div className="flex flex-col gap-1">
+                    {filteredApps.map((app, index) => {
+                      const isSelected = index === selectedIndex;
+                      const Icon = app.icon;
+                      
+                      return (
+                        <button
+                          key={app.id}
+                          className={`
+                            flex items-center gap-4 px-3 py-3 rounded-xl transition-colors text-left w-full
+                            ${isSelected ? 'bg-accent/20 border border-accent/20' : 'hover:bg-surface/50 border border-transparent'}
+                          `}
+                          onClick={() => launchApp(app)}
+                          onMouseEnter={() => setSelectedIndex(index)}
+                        >
+                          <div className={`p-2 rounded-lg shrink-0 ${isSelected ? 'bg-accent/20 text-accent' : 'bg-surface text-foreground'}`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1 flex flex-col min-w-0">
+                            <span className="font-medium text-foreground truncate">{app.title}</span>
+                            <span className="text-sm text-muted truncate">{app.description}</span>
+                          </div>
+                          {isSelected && (
+                            <span className="text-[10px] text-muted font-mono bg-surface px-1.5 py-0.5 rounded border border-border shrink-0 ml-4 hidden sm:block">
+                              ↵
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
-                )}
-              </div>
-            </motion.div>
-          </div>
-        </>
+                </div>
+              ) : (
+                <div className="py-12 flex flex-col items-center justify-center text-muted gap-3">
+                  <Search className="w-8 h-8 opacity-20" />
+                  <p>No results found for &quot;{query}&quot;</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );

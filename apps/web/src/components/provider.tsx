@@ -3,6 +3,7 @@
 import { useEffect, useState, createContext, useContext } from 'react';
 import { kernel, registry } from '@devos/kernel';
 import type { EventBus, ServiceRegistry } from '@devos/kernel';
+import { vfs } from '@devos/filesystem';
 
 // ─── Kernel Context ─────────────────────────────────────────────────────────
 interface KernelContextValue {
@@ -27,6 +28,10 @@ export function DevOSProvider({ children }: { children: React.ReactNode }) {
     async function bootSystem() {
       try {
         console.log("Booting DevOS...");
+
+        // Initialise Virtual File System
+        await vfs.init();
+        registry.register('filesystem', vfs);
 
         // Emit system boot event
         await kernel.emit('system.boot', {});

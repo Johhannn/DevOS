@@ -1,27 +1,27 @@
 "use client";
 
-import { Bot, Bell, Settings } from 'lucide-react';
 import { useNotificationStore } from '../../stores/notificationStore';
+import { Cpu, Bell, Settings2 } from 'lucide-react';
 
 export function SystemTray() {
   const notifications = useNotificationStore((state) => state.notifications);
-  const hasUnread = notifications.length > 0;
+  const unreadCount = notifications.length;
 
   return (
-    <div className="flex items-center gap-1">
-      <button className="relative w-8 h-8 flex items-center justify-center rounded-md hover:bg-surface/60 text-muted hover:text-foreground transition-colors">
-        <Bot className="w-4 h-4" />
+    <div className="flex items-center gap-1.5 px-2">
+      <button className="h-8 w-8 rounded-md flex items-center justify-center text-muted hover:text-foreground hover:bg-surface transition-colors">
+        <Cpu size={18} />
       </button>
       
-      <button className="relative w-8 h-8 flex items-center justify-center rounded-md hover:bg-surface/60 text-muted hover:text-foreground transition-colors">
-        <Bell className="w-4 h-4" />
-        {hasUnread && (
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 ring-2 ring-panel" />
+      <button className="relative h-8 w-8 rounded-md flex items-center justify-center text-muted hover:text-foreground hover:bg-surface transition-colors">
+        <Bell size={18} />
+        {unreadCount > 0 && (
+          <div className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive border border-panel shrink-0"></div>
         )}
       </button>
 
-      <button className="relative w-8 h-8 flex items-center justify-center rounded-md hover:bg-surface/60 text-muted hover:text-foreground transition-colors">
-        <Settings className="w-4 h-4" />
+      <button className="h-8 w-8 rounded-md flex items-center justify-center text-muted hover:text-foreground hover:bg-surface transition-colors">
+        <Settings2 size={18} />
       </button>
     </div>
   );

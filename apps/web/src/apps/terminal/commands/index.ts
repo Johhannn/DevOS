@@ -1,0 +1,12 @@
+export { execute as ls } from './ls';
+export { execute as cd } from './cd';
+export { execute as pwd } from './pwd';
+export { execute as cat } from './cat';
+export { execute as echo } from './echo';
+export { execute as mkdir } from './mkdir';
+export { execute as touch } from './touch';
+export { execute as rm } from './rm';
+export { execute as cp } from './cp';
+export { execute as mv } from './mv';
+export { execute as help } from './help';
+export { execute as devos } from './devos';

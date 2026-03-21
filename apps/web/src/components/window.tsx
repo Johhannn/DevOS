@@ -4,6 +4,8 @@ import { useWindowStore } from '../stores/windowStore';
 import { Rnd } from 'react-rnd';
 import { motion } from 'framer-motion';
 import { X, Minus, Square } from 'lucide-react';
+import TerminalApp from '../apps/terminal/TerminalApp';
+import EditorApp from '../apps/editor/EditorApp';
 
 export function Window({ id }: { id: string }) {
   const windowState = useWindowStore(state => state.windows[id]);
@@ -55,9 +57,15 @@ export function Window({ id }: { id: string }) {
 
       {/* App Content */}
       <div className="flex-grow relative overflow-hidden bg-desktop">
-        <div className="p-4 font-mono text-sm text-white/50">
-          Mounting {windowState.appId}...
-        </div>
+        {windowState.appId === 'terminal' ? (
+          <TerminalApp />
+        ) : windowState.appId === 'editor' ? (
+          <EditorApp />
+        ) : (
+          <div className="p-4 font-mono text-sm text-white/50">
+            Mounting {windowState.appId}...
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from 'react';
 import { useSystemStore } from '../../stores/systemStore';
+import { useMemo, useEffect, useState } from 'react';
+
+// Attempt to use Tooltip from @devos/ui if available, fallback to title otherwise.
 import { Tooltip } from '@devos/ui';
 
 export function Clock() {
@@ -9,33 +11,36 @@ export function Clock() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(t);
+    setMounted(true);
   }, []);
 
+  const timeString = useMemo(() => {
+    return currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }, [currentTime]);
+
+  const dateString = useMemo(() => {
+    return currentTime.toLocaleDateString(undefined, { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  }, [currentTime]);
+
   if (!mounted) {
-    return <div className="px-2 text-sm font-mono text-muted">--:--</div>;
+    return (
+      <div className="flex items-center justify-center font-mono text-sm text-muted w-12 h-8">
+      </div>
+    );
   }
 
-  // Format time (HH:MM in 12h format)
-  const timeString = currentTime.toLocaleTimeString([], {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
-
-  // Format date (e.g., Monday, January 1, 2024)
-  const dateString = currentTime.toLocaleDateString(undefined, {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
+  // If Tooltip is provided by @devos/ui
   return (
-    <Tooltip content={<p className="text-sm">{dateString}</p>}>
-      <div className="px-2 py-1 ml-1 rounded-md hover:bg-surface/60 cursor-default transition-colors flex items-center justify-center">
-        <span className="text-sm font-mono text-muted">{timeString}</span>
+    <Tooltip content={<div className="text-xs">{dateString}</div>}>
+      <div 
+        className="flex items-center justify-center font-mono text-sm text-muted hover:text-foreground hover:bg-surface px-2 h-8 rounded-md transition-colors cursor-default"
+      >
+        {timeString}
       </div>
     </Tooltip>
   );

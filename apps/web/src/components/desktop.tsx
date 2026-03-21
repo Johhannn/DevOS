@@ -2,6 +2,7 @@
 
 import { Taskbar } from './taskbar';
 import { WindowManager } from './window-manager';
+import { AppLauncher } from './launcher/AppLauncher';
 
 export function Desktop() {
   return (
@@ -13,6 +14,9 @@ export function Desktop() {
       
       {/* Desktop Icon Area / Window Area */}
       <WindowManager />
+
+      {/* App Launcher Overlay */}
+      <AppLauncher />
 
       {/* Fixed Taskbar at bottom */}
       <Taskbar />
