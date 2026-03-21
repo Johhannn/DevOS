@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import { X, Minus, Square } from 'lucide-react';
 import TerminalApp from '../apps/terminal/TerminalApp';
 import EditorApp from '../apps/editor/EditorApp';
+import ExplorerApp from '../apps/explorer/ExplorerApp';
+import ApiTesterApp from '../apps/api-tester/ApiTesterApp';
 
 export function Window({ id }: { id: string }) {
   const windowState = useWindowStore(state => state.windows[id]);
@@ -61,6 +63,10 @@ export function Window({ id }: { id: string }) {
           <TerminalApp />
         ) : windowState.appId === 'editor' ? (
           <EditorApp />
+        ) : windowState.appId === 'explorer' ? (
+          <ExplorerApp />
+        ) : windowState.appId === 'api-tester' ? (
+          <ApiTesterApp />
         ) : (
           <div className="p-4 font-mono text-sm text-white/50">
             Mounting {windowState.appId}...

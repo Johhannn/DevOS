@@ -2,9 +2,22 @@
 
 import { Taskbar } from './taskbar';
 import { WindowManager } from './window-manager';
-import { AppLauncher } from './launcher/AppLauncher';
+import { CommandPalette } from './palette/CommandPalette';
+import { NotificationContainer } from './notifications/NotificationContainer';
+import { useEffect } from 'react';
+import { kernel } from '@devos/kernel';
+import { useNotificationStore } from '../stores/notificationStore';
 
 export function Desktop() {
+  useEffect(() => {
+    const handleNotify = (payload: any) => {
+      useNotificationStore.getState().add(payload);
+    };
+    
+    kernel.on('os.notify' as any, handleNotify);
+    return () => kernel.off('os.notify' as any, handleNotify);
+  }, []);
+
   return (
     <div className="relative w-full h-full flex flex-col overflow-hidden">
       {/* Background Wallpaper */}
@@ -15,8 +28,11 @@ export function Desktop() {
       {/* Desktop Icon Area / Window Area */}
       <WindowManager />
 
-      {/* App Launcher Overlay */}
-      <AppLauncher />
+      {/* Unified Command Palette Overlay */}
+      <CommandPalette />
+
+      {/* Global Notification Toasts */}
+      <NotificationContainer />
 
       {/* Fixed Taskbar at bottom */}
       <Taskbar />

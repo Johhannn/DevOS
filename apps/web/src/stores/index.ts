@@ -8,7 +8,7 @@ export { useProcessStore } from './processStore';
 export type { ProcessState, ProcessStoreState, ProcessStoreActions, ProcessStatus } from './processStore';
 
 export { useNotificationStore } from './notificationStore';
-export type { NotificationItem, NotificationStoreState, NotificationStoreActions, NotificationType } from './notificationStore';
+export type { ToastNotification, NotificationType } from './notificationStore';
 
 export { usePreferencesStore } from './preferencesStore';
 export type { PreferencesState, PreferencesActions, ThemePreference, FontFamily, KeyBinding } from './preferencesStore';
