@@ -1,12 +1,20 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { AppLauncherButton } from './AppLauncherButton';
 import { RunningApps } from './RunningApps';
 import { SystemTray } from './SystemTray';
 import { Clock } from './Clock';
+import { useSystemStore } from '../../stores/systemStore';
 
 export function Taskbar() {
+  const tick = useSystemStore((s) => s.tick);
+
+  // Drive the system clock — tick every second so Clock updates
+  useEffect(() => {
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [tick]);
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 h-12 bg-panel/90 backdrop-blur-md border-t border-border flex items-center justify-between px-3 select-none">
       

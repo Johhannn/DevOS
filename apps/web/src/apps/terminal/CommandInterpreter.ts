@@ -18,28 +18,28 @@ export class CommandInterpreter {
   constructor(private term: Terminal) {}
 
   public printPrompt() {
-    this.term.write(`\\x1B[36mdevos\\x1B[0m:\\x1B[34m${this.cwd}\\x1B[0m$ `);
+    this.term.write(`\x1B[36mdevos\x1B[0m:\x1B[34m${this.cwd}\x1B[0m$ `);
   }
 
   public handleInput(data: string) {
     switch (data) {
-      case '\\r': // Enter
-        this.term.write('\\r\\n');
+      case '\r': // Enter
+        this.term.write('\r\n');
         this.handleEnter();
         break;
-      case '\\x7f': // Backspace
+      case '\x7f': // Backspace
         if (this.currentInput.length > 0) {
           this.currentInput = this.currentInput.slice(0, -1);
-          this.term.write('\\b \\b');
+          this.term.write('\b \b');
         }
         break;
-      case '\\x1b[A': // Up Arrow
+      case '\x1b[A': // Up Arrow
         if (this.history.length > 0 && this.historyIndex < this.history.length - 1) {
           this.historyIndex++;
           this.replaceInput(this.history[this.history.length - 1 - this.historyIndex]);
         }
         break;
-      case '\\x1b[B': // Down Arrow
+      case '\x1b[B': // Down Arrow
         if (this.historyIndex > 0) {
           this.historyIndex--;
           this.replaceInput(this.history[this.history.length - 1 - this.historyIndex]);
@@ -48,18 +48,18 @@ export class CommandInterpreter {
           this.replaceInput('');
         }
         break;
-      case '\\x03': // Ctrl+C
-        this.term.write('^C\\r\\n');
+      case '\x03': // Ctrl+C
+        this.term.write('^C\r\n');
         this.currentInput = '';
         this.historyIndex = -1;
         this.printPrompt();
         break;
-      case '\\x0c': // Ctrl+L
+      case '\x0c': // Ctrl+L
         this.term.clear();
         break;
       default:
         // Filter out unhandled control sequences
-        if (data >= String.fromCharCode(0x20) && data !== '\\x7f') {
+        if (data >= String.fromCharCode(0x20) && data !== '\x7f') {
           this.currentInput += data;
           this.term.write(data);
         }
@@ -69,7 +69,7 @@ export class CommandInterpreter {
   private replaceInput(newInput: string) {
     // Clear current line visibly
     while (this.currentInput.length > 0) {
-      this.term.write('\\b \\b');
+      this.term.write('\b \b');
       this.currentInput = this.currentInput.slice(0, -1);
     }
     this.currentInput = newInput;
@@ -86,9 +86,9 @@ export class CommandInterpreter {
       const result = await this.execute(input);
       
       if (result.output) {
-        // Ensure standard lines end with \\r\\n for xterm
-        const formattedOutput = result.output.replace(/\\n/g, '\\r\\n');
-        this.term.write(formattedOutput + '\\r\\n');
+        // Ensure standard lines end with \r\n for xterm
+        const formattedOutput = result.output.replace(/\n/g, '\r\n');
+        this.term.write(formattedOutput + '\r\n');
       }
       if (result.newCwd) {
         this.cwd = result.newCwd;
@@ -100,7 +100,7 @@ export class CommandInterpreter {
 
   public async execute(input: string): Promise<CommandResult> {
     try {
-      const parts = input.match(/(?:[^\\s"']+|"[^"]*"|'[^']*')+/g) || [];
+      const parts = input.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g) || [];
       if (parts.length === 0) return { output: '', exitCode: 0 };
 
       // Remove quotes from args
@@ -119,7 +119,7 @@ export class CommandInterpreter {
       try {
         vfs = registry.get<VirtualFileSystem>('filesystem');
       } catch (err) {
-        return { output: '\\x1B[31m[System Error] VFS not found in registry.\\x1B[0m', exitCode: 1 };
+        return { output: '\x1B[31m[System Error] VFS not found in registry.\x1B[0m', exitCode: 1 };
       }
 
       // Route commands
@@ -138,7 +138,7 @@ export class CommandInterpreter {
 
     } catch (error: any) {
       const msg = error instanceof Error ? error.message : String(error);
-      return { output: `\\x1B[31m${msg}\\x1B[0m`, exitCode: 1 };
+      return { output: `\x1B[31m${msg}\x1B[0m`, exitCode: 1 };
     }
   }
 }

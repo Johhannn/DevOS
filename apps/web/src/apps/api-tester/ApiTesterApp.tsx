@@ -15,7 +15,7 @@ export default function ApiTesterApp() {
     method: 'GET',
     url: 'https://jsonplaceholder.typicode.com/posts/1',
     headers: [{ key: 'Content-Type', value: 'application/json', active: true }, { key: '', value: '', active: true }],
-    body: '{\\n  "title": "foo",\\n  "body": "bar",\\n  "userId": 1\\n}',
+    body: '{\n  "title": "foo",\n  "body": "bar",\n  "userId": 1\n}',
     auth: { type: 'none', token: '' }
   });
 
@@ -53,6 +53,11 @@ export default function ApiTesterApp() {
     // Save history
     try {
       const vfs = registry.get<VirtualFileSystem>('filesystem');
+
+      // Ensure .devos directory exists before writing
+      try { await vfs.getNode('/home/user/.devos'); }
+      catch { await vfs.createDirectory('/home/user/.devos'); }
+
       let history: HistoryItem[] = [];
       if (await vfs.exists(HISTORY_FILE)) {
         const content = await vfs.readFile(HISTORY_FILE);

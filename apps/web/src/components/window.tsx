@@ -44,14 +44,14 @@ export function Window({ id }: { id: string }) {
            <div className="text-xs font-semibold text-white/80">{windowState.title}</div>
         </div>
 
-        <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
-          <button onClick={(e) => { e.stopPropagation(); minimiseWindow(id); }} className="w-5 h-5 flex items-center justify-center hover:bg-white/10 rounded">
+        <div className="flex items-center gap-1 relative z-10">
+          <button onClick={(e) => { e.stopPropagation(); minimiseWindow(id); }} className="w-7 h-7 flex items-center justify-center hover:bg-white/10 rounded transition-colors">
             <Minus size={14} />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); maximiseWindow(id); }} className="w-5 h-5 flex items-center justify-center hover:bg-white/10 rounded">
+          <button onClick={(e) => { e.stopPropagation(); maximiseWindow(id); }} className="w-7 h-7 flex items-center justify-center hover:bg-white/10 rounded transition-colors">
             <Square size={12} />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); closeWindow(id); }} className="w-5 h-5 flex items-center justify-center hover:bg-danger hover:text-white rounded">
+          <button onClick={(e) => { e.stopPropagation(); closeWindow(id); }} className="w-7 h-7 flex items-center justify-center hover:bg-danger hover:text-white rounded transition-colors">
             <X size={14} />
           </button>
         </div>
