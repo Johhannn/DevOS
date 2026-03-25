@@ -4,28 +4,47 @@ import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  
-  const configService = app.get(ConfigService);
-  const frontendUrl = configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
-  const port = configService.get<number>('PORT') || 3001;
+let cachedApp: any;
 
-  app.enableCors({
-    origin: frontendUrl,
-    credentials: true,
-  });
+async function bootstrapServer() {
+  if (!cachedApp) {
+    const app = await NestFactory.create(AppModule);
+    
+    const configService = app.get(ConfigService);
+    const frontendUrl = configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
 
-  app.use(cookieParser());
-  
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  );
+    app.enableCors({
+      origin: frontendUrl,
+      credentials: true,
+    });
 
-  await app.listen(port);
-  console.log(`DevOS API is running on: http://localhost:${port}`);
+    app.use(cookieParser());
+    
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
+
+    await app.init();
+    cachedApp = app.getHttpAdapter().getInstance();
+  }
+  return cachedApp;
 }
-bootstrap();
+
+// Support Vercel Serverless Function export
+export default async function handler(req: any, res: any) {
+  const app = await bootstrapServer();
+  return app(req, res);
+}
+
+// Local development fallback naturally runs
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  bootstrapServer().then((app) => {
+    const port = process.env.PORT || 3001;
+    app.listen(port, () => {
+      console.log(`DevOS API listening on port ${port}`);
+    });
+  });
+}

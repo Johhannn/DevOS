@@ -7,8 +7,11 @@ export class AiService {
   private openai: OpenAI;
 
   constructor(private configService: ConfigService) {
+    const baseURL = this.configService.get<string>('AI_BASE_URL');
+    
     this.openai = new OpenAI({
       apiKey: this.configService.get<string>('AI_API_KEY'),
+      ...(baseURL ? { baseURL } : {}),
     });
   }
 
