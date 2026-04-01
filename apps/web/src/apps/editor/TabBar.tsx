@@ -1,5 +1,4 @@
 import { X } from 'lucide-react';
-import { detectLanguage } from './languageDetector';
 
 export interface EditorTab {
   id: string; // usually filePath

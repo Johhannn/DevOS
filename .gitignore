@@ -33,3 +33,14 @@ apps/**/pnpm-lock.yaml
 
 # Python scripts (not part of project)
 *.py
+
+# AI/Editor tool configs (local only)
+.codex/
+.cursor/
+.gemini/
+.vscode/
+.zed/
+.mcp.json
+config/mcporter.json
+opencode.json
+GEMINI.md

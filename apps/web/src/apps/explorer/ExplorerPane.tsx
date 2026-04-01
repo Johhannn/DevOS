@@ -7,7 +7,7 @@ import type { VirtualFileSystem } from '@devos/filesystem';
 import * as ContextMenu from '@radix-ui/react-context-menu';
 import { 
   Folder, FolderOpen, File, ChevronRight, ChevronDown, 
-  FilePlus, FolderPlus, RefreshCw, Edit2, Copy, Trash2, ExternalLink
+  FilePlus, FolderPlus, RefreshCw, Edit2, Trash2, ExternalLink
 } from 'lucide-react';
 
 interface ExplorerPaneProps {

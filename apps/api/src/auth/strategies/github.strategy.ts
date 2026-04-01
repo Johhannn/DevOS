@@ -3,6 +3,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, Profile } from 'passport-github2';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../../users/users.service';
+import type { User } from '../../users/user.entity';
+
+type VerifyCallback = (err: Error | null, user?: User) => void;
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
@@ -13,12 +16,19 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     super({
       clientID: configService.get<string>('GITHUB_CLIENT_ID') || 'test',
       clientSecret: configService.get<string>('GITHUB_CLIENT_SECRET') || 'test',
-      callbackURL: configService.get<string>('GITHUB_CALLBACK_URL') || 'http://localhost:3001/api/auth/github/callback',
+      callbackURL:
+        configService.get<string>('GITHUB_CALLBACK_URL') ||
+        'http://localhost:3001/api/auth/github/callback',
       scope: ['user:email'],
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: Profile, done: any) {
+  async validate(
+    accessToken: string,
+    refreshToken: string,
+    profile: Profile,
+    done: VerifyCallback,
+  ) {
     const user = await this.usersService.findOrCreate(profile);
     done(null, user);
   }

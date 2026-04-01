@@ -2,14 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
+import type { Request } from 'express';
+
+interface JwtPayload {
+  sub: string;
+  email: string;
+  githubId: string;
+}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: any) => {
-          let data = request?.cookies?.['devos-token'];
+        (request: Request) => {
+          const data = request?.cookies?.['devos-token'] as string | undefined;
           if (!data) {
             return null;
           }
@@ -21,7 +28,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: any) {
-    return { id: payload.sub, email: payload.email, githubId: payload.githubId };
+  validate(payload: JwtPayload) {
+    return {
+      id: payload.sub,
+      email: payload.email,
+      githubId: payload.githubId,
+    };
   }
 }

@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { Info, CheckCircle2, AlertTriangle, XCircle, X } from 'lucide-react';
 import type { ToastNotification } from '../../stores/notificationStore';
 import { useNotificationStore } from '../../stores/notificationStore';
-import { useEffect, useState } from 'react';
 
 export function NotificationToast({ id, title, message, type, persistent }: ToastNotification) {
   const remove = useNotificationStore(state => state.remove);

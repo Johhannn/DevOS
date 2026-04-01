@@ -2,8 +2,6 @@
 
 import { TabBar, EditorTab } from './TabBar';
 import { MonacoCanvas } from './MonacoCanvas';
-import { kernel, registry } from '@devos/kernel';
-import type { VirtualFileSystem } from '@devos/filesystem';
 
 interface EditorMainProps {
   openFiles: EditorTab[];
@@ -25,19 +23,7 @@ export function EditorMain({
   
   const activeTab = openFiles.find(t => t.id === activeTabId);
 
-  const handleSave = async () => {
-    if (!activeTab || !activeTab.isDirty) return;
-    try {
-      const vfs = registry.get<VirtualFileSystem>('filesystem');
-      // Wait, where is the current content? It's in the tab state!
-      // But activeTab.content implies the Tab state tracks the actual string.
-      // We didn't add `content` to EditorTab in TabBar.ts, so let's assert it exists or pass it.
-      // Let's assume the parent EditorApp manages the content and we just trigger the VFS write here.
-      // Wait, we can let EditorApp handle the saving logic instead of passing it down from EditorMain.
-    } catch (err) {
-      console.error('Failed to save', err);
-    }
-  };
+
 
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-[#0B0F19] overflow-hidden">

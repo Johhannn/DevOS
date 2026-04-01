@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Tree, NodeApi } from 'react-arborist';
 import { registry } from '@devos/kernel';
-import type { VirtualFileSystem, FSNode } from '@devos/filesystem';
+import type { VirtualFileSystem } from '@devos/filesystem';
 import { File, Folder, FolderOpen, ChevronRight, ChevronDown } from 'lucide-react';
 
 interface SidebarProps {

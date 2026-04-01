@@ -2,7 +2,6 @@
 
 import { useProcessStore } from '../../stores/processStore';
 import { Hexagon } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export function AppLauncherButton() {
   // Subscribe to processes to know if there are any running apps

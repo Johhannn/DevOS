@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ExplorerPane } from './ExplorerPane';
 import { FilePreview } from './FilePreview';
-import type { FSNode } from '@devos/filesystem';
+
 
 export default function ExplorerApp() {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);

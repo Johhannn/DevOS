@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSystemStore } from '../../stores/systemStore';
-import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 const LOGS = [

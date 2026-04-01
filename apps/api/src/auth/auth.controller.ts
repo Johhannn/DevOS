@@ -20,10 +20,15 @@ export class AuthController {
 
   @Get('github/callback')
   @UseGuards(AuthGuard('github'))
-  async githubAuthCallback(@Req() req: Request, @Res() res: Response) {
-    const user = req.user;
+  githubAuthCallback(@Req() req: Request, @Res() res: Response) {
+    const user = req.user as
+      | { email: string; id: string; githubId: string }
+      | undefined;
     if (!user) {
-      return res.redirect(this.configService.get<string>('FRONTEND_URL') + '/login?error=auth_failed');
+      return res.redirect(
+        this.configService.get<string>('FRONTEND_URL') +
+          '/login?error=auth_failed',
+      );
     }
 
     const { token } = this.authService.login(user);
@@ -35,7 +40,8 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
     res.redirect(frontendUrl);
   }
 

@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePaletteStore } from '../../stores/paletteStore';
 import { PaletteSearch } from './PaletteSearch';
 import { PaletteResults } from './PaletteResults';
 
 export function CommandPalette() {
-  const { isOpen, close, open, query, setQuery, setSelectedIndex, navigate } = usePaletteStore();
+  const { isOpen, close, open, query, setQuery } = usePaletteStore();
 
   // Keyboard shortcut listener
   useEffect(() => {

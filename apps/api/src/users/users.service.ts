@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
+import type { Profile } from 'passport-github2';
 
 @Injectable()
 export class UsersService {
@@ -10,16 +11,21 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async findOrCreate(githubProfile: any): Promise<User> {
-    const githubId = githubProfile.id;
+  async findOrCreate(githubProfile: Profile): Promise<User> {
+    const githubId = String(githubProfile.id);
     let user = await this.usersRepository.findOne({ where: { githubId } });
 
     if (!user) {
       user = this.usersRepository.create({
         githubId,
-        email: githubProfile.emails?.[0]?.value,
-        displayName: githubProfile.displayName || githubProfile.username,
-        avatarUrl: githubProfile.photos?.[0]?.value,
+        email: (githubProfile.emails as { value: string }[] | undefined)?.[0]
+          ?.value,
+        displayName:
+          githubProfile.displayName ||
+          (githubProfile as Profile & { username?: string }).username,
+        avatarUrl: (
+          githubProfile.photos as { value: string }[] | undefined
+        )?.[0]?.value,
       });
       await this.usersRepository.save(user);
     }

@@ -4,7 +4,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
-import Redis from 'ioredis';
 
 @Module({
   imports: [
@@ -12,13 +11,15 @@ import Redis from 'ioredis';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const redisUrl = config.get<string>('REDIS_URL') || 'redis://localhost:6379';
-        const redis = new Redis(redisUrl);
+        const redisUrl =
+          config.get<string>('REDIS_URL') || 'redis://localhost:6379';
         return {
-          throttlers: [{
-            ttl: 3600000, 
-            limit: 100,
-          }],
+          throttlers: [
+            {
+              ttl: 3600000,
+              limit: 100,
+            },
+          ],
           storage: new ThrottlerStorageRedisService(redisUrl),
         };
       },

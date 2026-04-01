@@ -2,10 +2,8 @@
 
 import { Desktop } from '@/components/desktop';
 import { BootScreen } from '@/components/boot/BootScreen';
-import { useSystemStore } from '@/stores/systemStore';
 
 export default function Home() {
-  const bootStatus = useSystemStore((s) => s.bootStatus);
 
   return (
     <>

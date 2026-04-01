@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Send, Zap } from 'lucide-react';
+import { useState } from 'react';
+import { Zap } from 'lucide-react';
 import type { Method } from 'axios';
 import dynamic from 'next/dynamic';
 
